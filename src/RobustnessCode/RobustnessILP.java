@@ -23,7 +23,6 @@ public class RobustnessILP {
 	IloCplex cplex;
 	private IloIntVar[][] x;	
 	private IloIntVar[][] c;
-	public int totalConstraints = 1;
 	private double constM = 100.0;
 		
 	public RobustnessILP(String file, double RhoVal) {
@@ -245,8 +244,7 @@ public class RobustnessILP {
 			System.out.println("Time Steps       : " + STEPS);
 			System.out.println("Total Components : " + XCOUNT);
 			System.out.println("Components Dead  : " + compnentsDead);
-			System.out.println("Components Killed Initially  : " + componenetsKilledInitially);
-			
+			System.out.println("Components Killed Initially  : " + componenetsKilledInitially);	
 			System.out.println("==============================================");			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
