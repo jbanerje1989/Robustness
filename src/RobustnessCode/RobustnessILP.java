@@ -58,6 +58,7 @@ public class RobustnessILP {
 				}
 				String[] minterms = exp.substring(index + 1, exp.length()).split("   ");
 				for(String str: minterms){
+					if(mintermLabelToIndexMap.containsKey(str)) continue;
 					mintermLabelToIndexMap.put(str, cTermIndex);
 					cTermIndex ++;
 				}
@@ -72,7 +73,6 @@ public class RobustnessILP {
 			c = new IloIntVar[CCOUNT][STEPS];
 			scan.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -152,7 +152,7 @@ public class RobustnessILP {
 					IloNumExpr expr3 = cplex.constant(0);
 					double minCount = 0;
 					for(String minterms : IIRs.get(str)){
-						expr2 = cplex.sum(expr2, c[mintermLabelToIndexMap.get(minterms)][t - 1]);
+						expr2 = cplex.sum(expr2, c[mintermLabelToIndexMap.get(minterms)][t]);
 						minCount ++;
 					}
 					expr2 = cplex.prod(expr2, 1.0 / minCount);
@@ -164,7 +164,6 @@ public class RobustnessILP {
 					expr3 = cplex.sum(expr3, x[entityLabeltoIndexMap.get(str)][t]);
 					cplex.addGe(expr3, 1);
 				}
-				
 			}
 			
 			// For entities having no dependency relation
@@ -193,38 +192,6 @@ public class RobustnessILP {
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}	    	 
-	}
-	
-	public void printC() {
-		try {
-			System.out.println("\nC: ");			
-			for(int i = 0; i < CCOUNT; i++) {
-				System.out.println();
-				for (int j = 0; j <STEPS-1; j++) {		
-					System.out.print(cplex.getValue(c[i][j]) + " ");					
-				}
-			}
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}	    	 
-	}
-	
-	public void printPretty() {
-		try {
-			System.out.println("\nX: ");
-			for(int i = 0; i < XCOUNT; i++) {
-				System.out.println();
-				for (int j = 0; j <STEPS; j++) {
-					if (cplex.getValue(x[i][j]) >0)
-						System.out.print("1 ");
-					else
-						System.out.print("0 ");
-				}
-			}
-			
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
 	}
 	
 	public int printReport() {
@@ -271,7 +238,7 @@ public class RobustnessILP {
 
 	public static void main(String args[]) {
 		
-		RobustnessILP ex = new RobustnessILP("case300IIRsAtTimeStep1", 0.2);
+		RobustnessILP ex = new RobustnessILP("DataSet2", 0.5);
 		ex.optimize();
 		// ex.printX();
 		ex.printReport();
