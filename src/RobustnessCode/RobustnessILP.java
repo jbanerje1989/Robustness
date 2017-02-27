@@ -32,25 +32,19 @@ public class RobustnessILP {
 			IIRs = new HashMap<String, List<String>>();
 			File caseFile = new File("OutputFiles/" + file + ".txt");
 			Scanner scan = new Scanner(caseFile);
-			String[] entitySet1 = scan.nextLine().split(" ");
-			int index = 0;
-			for(String str : entitySet1){
-				entityLabeltoIndexMap.put(str, index);
-				index ++;
-			}
-			String[] entitySet2 = scan.nextLine().split(" ");
-			for(String str : entitySet2){
-				entityLabeltoIndexMap.put(str, index);
-				index ++;
-			}
 			int cTermIndex = 0;
+			int eIndex = 0;
 			while(scan.hasNext()){
 				String exp = scan.nextLine();
 				StringBuilder firstEntity = new StringBuilder();
-				index = 0;
+				int index = 0;
 				while(exp.charAt(index) != ' '){
 					firstEntity.append(exp.charAt(index));
 					index ++;
+				}
+				if(!entityLabeltoIndexMap.containsKey(firstEntity.toString())){
+					entityLabeltoIndexMap.put(firstEntity.toString(), eIndex);
+					eIndex ++;
 				}
 				index ++;
 				while(exp.charAt(index) != ' '){
@@ -60,6 +54,12 @@ public class RobustnessILP {
 				for(String str: minterms){
 					if(mintermLabelToIndexMap.containsKey(str)) continue;
 					mintermLabelToIndexMap.put(str, cTermIndex);
+					for(String entity: str.split(" ")){
+						if(!entityLabeltoIndexMap.containsKey(entity)){
+							entityLabeltoIndexMap.put(entity, eIndex);
+							eIndex ++;
+						}
+					}
 					cTermIndex ++;
 				}
 				IIRs.put(firstEntity.toString(), Arrays.asList(minterms));
@@ -134,7 +134,6 @@ public class RobustnessILP {
 			for (int i = 0;i < XCOUNT; i++)
 				expr = cplex.sum(expr, x[i][STEPS - 1]);			
 			cplex.addGe(expr, (int) Math.ceil(rho * (double) XCOUNT));	
-			
 			// Generating constraints for IIRs
 			for(String str: IIRs.keySet()){
 				for(String minterms : IIRs.get(str)){
@@ -176,6 +175,7 @@ public class RobustnessILP {
 			}
 			
 		} catch (Exception e) {
+			System.out.println("Hello Error");
 			System.out.println(e.getMessage());
 		}
 	}
@@ -207,12 +207,10 @@ public class RobustnessILP {
 					componenetsKilledInitially ++;
 				}
 			}
-			System.out.println("\n\n==============================================");
 			System.out.println("Time Steps       : " + STEPS);
 			System.out.println("Total Components : " + XCOUNT);
 			System.out.println("Components Dead  : " + compnentsDead);
-			System.out.println("Components Killed Initially  : " + componenetsKilledInitially);	
-			System.out.println("==============================================");			
+			System.out.println("Components Killed Initially  : " + componenetsKilledInitially);			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -237,12 +235,14 @@ public class RobustnessILP {
 	}
 
 	public static void main(String args[]) {
-		
-		RobustnessILP ex = new RobustnessILP("DataSet2", 0.5);
+		long startTime = System.currentTimeMillis();
+		RobustnessILP ex = new RobustnessILP("DataSet1", 0.40);
 		ex.optimize();
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
 		// ex.printX();
 		ex.printReport();
-		System.out.println("Done");	
+		System.out.println(totalTime / 1000.0 + " seconds");
 }
 }
 
