@@ -1,11 +1,10 @@
 package RobustnessCode;
-
 import java.io.FileNotFoundException;
 
 public class DriverRobustness {
 	public static void main(String[] args) throws FileNotFoundException{
 		String fileName = "case39IIRsAtTimeStep1";
-		double rhoVal = 0.5;
+		double rhoVal = 0.1;
 		
 		System.out.println("ILP Output");
 		long startTime = System.currentTimeMillis();
